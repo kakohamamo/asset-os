@@ -3,420 +3,219 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>資産OS</title>
-
+<title>資産OS Pro</title>
+<meta name="theme-color" content="#0a84ff">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-body{margin:0;font-family:-apple-system;background:#0b0c10;color:#fff;}
-header{padding:14px;text-align:center;background:#111;font-weight:700;}
-
-nav{display:flex;background:#16171b;}
-nav button{flex:1;padding:12px;background:none;border:none;color:#777;}
-nav button.active{color:#0a84ff;border-bottom:2px solid #0a84ff;}
-
-.container{padding:12px;}
-.card{background:#1c1f26;padding:14px;border-radius:14px;margin-bottom:12px;}
-
-input{
-width:100%;padding:10px;margin-top:6px;
-border:none;border-radius:10px;
-background:#1b1e25;color:#fff;
-}
-
-button{
-width:100%;padding:12px;margin-top:10px;
-border:none;border-radius:12px;
-background:#0a84ff;color:#fff;font-weight:600;
-}
-
-.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #2a2d36;}
-.value{color:#4da3ff;font-weight:600}
-.small{font-size:12px;color:#777}
-.big{font-size:32px;font-weight:700}
-
-/* カレンダー */
-.calendar{
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:6px;
-margin-top:10px;
-}
-
-.day{
-background:#1b1e25;
-padding:8px;
-border-radius:8px;
-font-size:12px;
-min-height:60px;
-}
-
-.day.income{border:1px solid #2ecc71;}
-.day.expense{border:1px solid #e74c3c;}
-.day.both{border:1px solid #f1c40f;}
-
-.smallDate{font-size:10px;color:#777;}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-<header>資産管理システム</header>
-
+<header>
+<h1>資産OS Pro</h1>
+<div id="onlineStatus">オンライン</div>
+</header>
 <nav>
-<button onclick="tab(0)">ホーム</button>
-<button onclick="tab(1)">入力</button>
-<button onclick="tab(2)">貸借対照表</button>
-<button onclick="tab(3)">分析</button>
+<button onclick="tab(0)">
+ホーム
+</button>
+<button onclick="tab(1)">
+入力
+</button>
+<button onclick="tab(2)">
+貸借対照表
+</button>
+<button onclick="tab(3)">
+分析
+</button>
+<button onclick="tab(4)">
+履歴
+</button>
+<button onclick="tab(5)">
+目標
+</button>
+<button onclick="tab(6)">
+設定
+</button>
 </nav>
-
 <div class="container">
-
 <!-- HOME -->
-<div class="page">
-
+<section class="page active">
 <div class="card">
-<div class="small">純資産</div>
-<div class="big">¥<span id="net">0</span></div>
-<div id="status" class="small"></div>
+<h3>純資産</h3>
+<div class="big" id="netWorth">
+¥0
 </div>
-
+</div>
+<div class="grid">
+<div class="card">
+<h4>総資産</h4>
+<div id="totalAssets">
+0
+</div>
+</div>
+<div class="card">
+<h4>総負債</h4>
+<div id="totalDebt">
+0
+</div>
+</div>
+</div>
+<div class="grid">
+<div class="card">
+<h4>今月収入</h4>
+<div id="monthIncome">
+0
+</div>
+</div>
+<div class="card">
+<h4>今月支出</h4>
+<div id="monthExpense">
+0
+</div>
+</div>
+</div>
+<div class="card">
+<h3>FIRE達成率</h3>
+<div id="fireRate">
+0%
+</div>
+</div>
 <div class="card">
 <h3>資産構成</h3>
-<canvas id="pie"></canvas>
+<canvas id="assetPie"></canvas>
 </div>
-
 <div class="card">
 <h3>資産推移</h3>
-<canvas id="trend"></canvas>
+<canvas id="assetTrend"></canvas>
 </div>
-
-</div>
-
+</section>
 <!-- INPUT -->
-<div class="page" style="display:none">
-
+<section class="page">
 <div class="card">
 <h3>資産</h3>
-現金<input id="cash">
-預金<input id="bank">
-株式<input id="stock">
-NISA<input id="nisa">
+現金 
+預金 
+株式 
+NISA 
+土地 
+建物 
+自動車 
 </div>
-
 <div class="card">
 <h3>負債</h3>
-住宅ローン<input id="loan">
-カード<input id="credit">
-その他<input id="otherDebt">
+住宅ローン 
+カード 
+その他 
+Mローン 
+M債権 
+Y債権 
 </div>
-
 <div class="card">
-<h3>収入（※日付付き）</h3>
-給与日付<input type="date" id="income_date_salary">
-給与<input id="income_salary">
-
-副収入日付<input type="date" id="income_date_extra">
-副収入<input id="income_extra">
-
-運用益日付<input type="date" id="income_date_invest">
-運用益<input id="income_invest">
+<h3>収入</h3>
+給与日付  
+副収入日付  
+運用益日付  
+配当金日付  
 </div>
-
 <div class="card">
-<h3>支出（※日付付き）</h3>
-
-教育費日付<input type="date" id="exp_date_education">
-教育費<input id="exp_education">
-
-日用品日付<input type="date" id="exp_date_daily">
-日用品<input id="exp_daily">
-
-車日付<input type="date" id="exp_date_car">
-車<input id="exp_car">
-
-家具家電日付<input type="date" id="exp_date_furniture">
-家具家電<input id="exp_furniture">
-
-食費日付<input type="date" id="exp_date_food">
-食費<input id="exp_food">
-
-住居日付<input type="date" id="exp_date_house">
-住居<input id="exp_house">
-
-光熱費日付<input type="date" id="exp_date_util">
-光熱費<input id="exp_util">
-
-通信費日付<input type="date" id="exp_date_comm">
-通信費<input id="exp_comm">
-
-交通費日付<input type="date" id="exp_date_transport">
-交通費<input id="exp_transport">
-
-医療費日付<input type="date" id="exp_date_med">
-医療費<input id="exp_med">
-
-娯楽日付<input type="date" id="exp_date_ent">
-娯楽<input id="exp_ent">
-
-その他日付<input type="date" id="exp_date_other">
-その他<input id="exp_other">
-
+<h3>支出</h3>
+教育費  
+日用品  
+車  
+家具家電  
+食費  
+住居  
+光熱費  
+通信費  
+交通費  
+医療費  
+娯楽  
+その他  
 </div>
-
-<button onclick="saveAll()">保存</button>
-
-</div>
-
-<!-- B/S -->
-<div class="page" style="display:none">
+<button class="primary" onclick="saveAll()">
+保存
+</button>
+</section>
+<!-- BS -->
+<section class="page">
 <div class="card">
-<h3>貸借対照表</h3>
-<div id="bs"></div>
+<h2>貸借対照表</h2>
+<div id="bsView"></div>
 </div>
-</div>
-
+</section>
 <!-- ANALYTICS -->
-<div class="page" style="display:none">
-
+<section class="page">
 <div class="card">
-<h3>月別収支</h3>
-<select id="monthSelect" onchange="renderAnalysis()"></select>
-<canvas id="monthlyPie"></canvas>
+<h3>月別分析</h3>
 </div>
-
+<div class="card">
+<h3>支出ランキング</h3>
+<div id="expenseRanking"></div>
+</div>
+<div class="card">
+<h3>月間貯蓄率</h3>
+<div id="savingRate"></div>
+</div>
 <div class="card">
 <h3>カレンダー</h3>
 <div id="calendar"></div>
 </div>
-
+</section>
+<!-- HISTORY -->
+<section class="page">
+<div class="card">
+<h3>取引履歴</h3>
+<div id="historyList"></div>
 </div>
-
+</section>
+<!-- FIRE -->
+<section class="page">
+<div class="card">
+<h3>FIRE目標管理</h3>
+<div id="fireGoal"></div>
 </div>
-
+</section>
+<!-- SETTINGS -->
+<section class="page">
+<div class="card">
+<h3>バックアップ</h3>
+<button onclick="exportCSV()">
+CSV出力
+</button>
+<button onclick="backupJSON()">
+JSONバックアップ
+</button>
+<button onclick="restoreJSON()">
+JSON復元
+</button>
+</div>
+<div class="card">
+<h3>テーマ</h3>
+<button onclick="toggleTheme()">
+ライト／ダーク切替
+</button>
+</div>
+<div class="card">
+<h3>PWA</h3>
+<div>
+ホーム画面へ追加すると
+アプリとして利用できます。
+</div>
+</div>
+</section>
+</div>
+<script src="app.js"></script>
 <script>
 
-let data = JSON.parse(localStorage.getItem("assetOS")) || {
-assets:{cash:0,bank:0,stock:0,nisa:0},
-liabilities:{loan:0,credit:0,other:0},
-incomeRecords:[],
-expenseRecords:[],
-history:{}
-};
+if("serviceWorker" in navigator){
 
-function save(){
-localStorage.setItem("assetOS",JSON.stringify(data));
-update();
-snapshot();
+navigator.serviceWorker.register(
+"./service-worker.js"
+);
+
 }
-
-function saveAll(){
-
-// assets
-data.assets.cash=+cash.value||0;
-data.assets.bank=+bank.value||0;
-data.assets.stock=+stock.value||0;
-data.assets.nisa=+nisa.value||0;
-
-// liabilities
-data.liabilities.loan=+loan.value||0;
-data.liabilities.credit=+credit.value||0;
-data.liabilities.other=+otherDebt.value||0;
-
-// income
-pushRecord("income","salary",income_date_salary.value,income_salary.value);
-pushRecord("income","extra",income_date_extra.value,income_extra.value);
-pushRecord("income","invest",income_date_invest.value,income_invest.value);
-
-// expense（既存＋追加）
-pushRecord("expense","education",exp_date_education.value,exp_education.value);
-pushRecord("expense","daily",exp_date_daily.value,exp_daily.value);
-pushRecord("expense","car",exp_date_car.value,exp_car.value);
-pushRecord("expense","furniture",exp_date_furniture.value,exp_furniture.value);
-
-pushRecord("expense","food",exp_date_food.value,exp_food.value);
-pushRecord("expense","house",exp_date_house.value,exp_house.value);
-pushRecord("expense","utility",exp_date_util.value,exp_util.value);
-pushRecord("expense","communication",exp_date_comm.value,exp_comm.value);
-pushRecord("expense","transport",exp_date_transport.value,exp_transport.value);
-pushRecord("expense","medical",exp_date_med.value,exp_med.value);
-pushRecord("expense","entertainment",exp_date_ent.value,exp_ent.value);
-pushRecord("expense","other",exp_date_other.value,exp_other.value);
-
-save();
-}
-
-function pushRecord(type,cat,date,amount){
-if(!date || !amount) return;
-data[type+"Records"].push({date,cat,amount:+amount});
-}
-
-function totalAssets(){
-return Object.values(data.assets).reduce((a,b)=>a+b,0);
-}
-
-function totalDebt(){
-return Object.values(data.liabilities).reduce((a,b)=>a+b,0);
-}
-
-function net(){
-return totalAssets()-totalDebt();
-}
-
-function snapshot(){
-let m=new Date().toISOString().slice(0,7);
-data.history[m]={net:net()};
-}
-
-function update(){
-document.getElementById("net").innerText=net().toLocaleString();
-status.innerText=navigator.onLine?"オンライン":"オフライン";
-renderBS();
-renderAnalysis();
-drawCharts();
-}
-
-function renderBS(){
-
-let el=document.getElementById("bs");
-
-el.innerHTML=`
-<div class="card"><h3>資産</h3>
-${Object.entries(data.assets).map(([k,v])=>
-`<div class="row"><span>${k}</span><span class="value">${v}</span></div>`
-).join("")}
-</div>
-
-<div class="card"><h3>負債</h3>
-${Object.entries(data.liabilities).map(([k,v])=>
-`<div class="row"><span>${k}</span><span class="value">${v}</span></div>`
-).join("")}
-</div>
-`;
-}
-
-function getMonths(){
-return [...new Set([...data.incomeRecords,...data.expenseRecords].map(r=>r.date.slice(0,7)))];
-}
-
-function fillMonthSelect(){
-let sel=document.getElementById("monthSelect");
-let months=getMonths();
-
-sel.innerHTML=months.map(m=>`<option value="${m}">${m}</option>`).join("");
-
-if(months.length>0){
-sel.value=months[months.length-1];
-}
-}
-
-function monthlySum(type,month){
-return data[type+"Records"]
-.filter(r=>r.date.startsWith(month))
-.reduce((a,b)=>a+b.amount,0);
-}
-
-let monthlyPie;
-
-function renderAnalysis(){
-
-fillMonthSelect();
-
-let month=document.getElementById("monthSelect")?.value;
-if(!month) return;
-
-let income=monthlySum("income",month);
-let expense=monthlySum("expense",month);
-
-if(monthlyPie) monthlyPie.destroy();
-
-monthlyPie=new Chart(document.getElementById("monthlyPie"),{
-type:"doughnut",
-data:{
-labels:["収入","支出"],
-datasets:[{data:[income,expense]}]
-}
-});
-
-renderCalendar(month);
-}
-
-function getExpenseColor(cat){
-
-switch(cat){
-
-case "education": return "#1abc9c";
-case "daily": return "#16a085";
-case "car": return "#d35400";
-case "furniture": return "#7f8c8d";
-
-case "food": return "#2ecc71";
-case "house": return "#3498db";
-case "utility": return "#f1c40f";
-case "communication": return "#9b59b6";
-case "transport": return "#e67e22";
-case "medical": return "#e74c3c";
-case "entertainment": return "#8e44ad";
-
-default: return "#95a5a6";
-}
-}
-
-function renderCalendar(month){
-
-let el=document.getElementById("calendar");
-el.innerHTML="";
-
-let [y,m]=month.split("-").map(Number);
-let days=new Date(y,m,0).getDate();
-
-let html=`<div class="calendar">`;
-
-for(let d=1; d<=days; d++){
-
-let dateStr=`${month}-${String(d).padStart(2,"0")}`;
-
-let records=data.expenseRecords.filter(r=>r.date===dateStr);
-
-let incomeSum=data.incomeRecords
-.filter(r=>r.date===dateStr)
-.reduce((a,b)=>a+b.amount,0);
-
-let expenseSum=records.reduce((a,b)=>a+b.amount,0);
-
-let cls="";
-if(incomeSum>0 && expenseSum>0) cls="both";
-else if(incomeSum>0) cls="income";
-else if(expenseSum>0) cls="expense";
-
-let bars=records.map(r=>
-`<div style="height:4px;background:${getExpenseColor(r.cat)};margin-top:2px;"></div>`
-).join("");
-
-html+=`
-<div class="day ${cls}">
-<div class="smallDate">${d}</div>
-${bars}
-<div style="color:#2ecc71">${incomeSum?"+¥"+incomeSum:""}</div>
-<div style="color:#e74c3c">${expenseSum?"-¥"+expenseSum:""}</div>
-</div>
-`;
-}
-
-html+=`</div>`;
-el.innerHTML=html;
-}
-
-function tab(i){
-document.querySelectorAll(".page").forEach((p,n)=>{
-p.style.display=n===i?"block":"none";
-});
-}
-
-setInterval(snapshot,10000);
-update();
 
 </script>
-
 </body>
 </html>
